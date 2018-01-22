@@ -35,7 +35,8 @@
 		$buttonCancel = $( '#jsPluginNameCancel' ),
 		$results      = $( '#jsPluginNameResults' ),
 		$choices      = $( '#jsPluginNameChoices' ),
-		data          = {};
+		data          = {},
+		threshold     = 0;
 /*
 	var getDescriptions = function () {
 		var
@@ -73,20 +74,30 @@
 			method: 'POST',
 			data: {
 				action: 'azure_describe_image',
-				image: dataImageURL
+				image: 'https://media.wired.com/photos/5926538eaf95806129f4f0b6/master/pass/UnsplashHP.jpg'
 			},
 			dataType: 'json',
 			url: ajaxurl
 		})
-		.done( function( res ) { console.log( res ); } )
+		.done( getDescriptionsSuccess )
+		.fail( getDescriptionsFail );
 	};
 
-	var getDescriptionsSuccess = function ( response ) {
-		data = response;
+	var getDescriptionsSuccess = function ( response, textStatus, jqXHR ) {
+		if ( 200 !== response.api.response.code ) {
+			// todo: error handling
+		}
+		
+		data = JSON.parse( response.api.body );
+		threshold = parseFloat( response.threshold );
 
 		$results.addClass( 'has-choices' );
 		$choices.append( getChoicesHTML() );
 		$buttonSet.prop( 'disabled', false );
+	};
+
+	var getDescriptionsFail = function ( jqXHR, textStatus, errorThrown ) {
+		
 	};
 
 	var getChoicesHTML = function () {
@@ -95,13 +106,30 @@
 			HTML     = [];
 
 		for ( var index = 0; index < captions.length; index++ ) {
-			var caption = captions[index].text;
-			
+			var
+				caption    = captions[index],
+				text       = caption.text,
+				confidence = parseFloat( caption.confidence ),
+				confidenceClass = '';
+
+			if ( threshold > confidence ) {
+				continue;
+			}
+
+			if ( confidence > 0.67 ) {
+				confidenceClass = 'wpazure-describe-image__choice--high';
+			} else if ( confidence > 0.33 ) {
+				confidenceClass = 'wpazure-describe-image__choice--med';
+			} else {
+				confidenceClass = 'wpazure-describe-image__choice--low';
+			}
+
 			HTML = HTML.concat( [
-				'<li>',
-					'<input id="caption_' + index + '" type="radio" name="generated_caption" value="' + caption + '">',
+				'<li class="wpazure-describe-image__choice ' + confidenceClass + '">',
+					'<input id="caption_' + index + '" type="radio" name="generated_caption" value="' + text + '">',
 					'<label for="caption_' + index + '">',
-					'&ldquo;' + caption + '&rdquo;',
+					'<span class="caption__text">&ldquo;' + text + '&rdquo;</span>',
+					'<span class="caption__confidence"><span class="caption__confidence__bar" style="width: ' + (confidence * 100).toFixed(2) + '%;">' + (confidence * 100).toFixed(2) + '%</span></span>',
 					'</label>',
 				'</li>'
 			] );

@@ -22,3 +22,55 @@
 .js-wpazure-describe-image__results.has-choices {
     display: block;
 }
+.js-wpazure-describe-image__choices {
+    border: 1px solid #ddd;
+    border-radius: 0.25rem;
+    background-color: #fff;
+}
+.wpazure-describe-image__choice {
+    padding: 0.5rem 1rem;
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+}
+.wpazure-describe-image__choice ~ li {
+    border-top: 1px solid #ddd;
+}
+.wpazure-describe-image__choice label {
+    display: inline-block;
+    vertical-align: middle;
+    flex-grow: 1;
+}
+.wpazure-describe-image__choice input {
+    margin-right: 1rem;
+}
+.wpazure-describe-image__choice .caption__text {
+    display: block;
+    font-style: italic;
+    margin-bottom: 0.5em;
+}
+
+.wpazure-describe-image__choice .caption__confidence {
+    background-color: #ddd;
+    display: block;
+    width: 100%;
+    border-radius: 0.25em;
+    overflow: hidden;
+}
+.wpazure-describe-image__choice .caption__confidence__bar {
+    display: block;
+    font-weight: bold;
+    font-size: 0.875em;
+    padding: 0.25em 0.5em;
+    color: #fff;
+}
+.wpazure-describe-image__choice--high .caption__confidence__bar {
+    background-color: #46b450;
+}
+.wpazure-describe-image__choice--med .caption__confidence__bar {
+    background-color: #f1c40f;
+    color: #000;
+}
+.wpazure-describe-image__choice--low .caption__confidence__bar {
+    background-color: #f8354a;
+}

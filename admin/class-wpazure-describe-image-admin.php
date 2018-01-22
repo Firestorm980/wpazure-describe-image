@@ -133,11 +133,14 @@ class Wpazure_Describe_Image_Admin {
 	}
 
 	public function wpadi_ajax_azure_describe_image() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			die( '-1' );
+		}
 
-		$image = $_POST['image'];
-
+		$image          = esc_url_raw( filter_input( INPUT_POST, 'image', FILTER_SANITIZE_URL ) );
 		$wpadi_settings = get_option( 'wpadi_settings', false );
 
+		// Error if no settings.
 		if ( ! $wpadi_settings ) {
 			wp_send_json_error( [
 				'error' => __( 'Error: Options have not been set for the plugin.', 'wpazure-describe-image' ),
@@ -148,32 +151,34 @@ class Wpazure_Describe_Image_Admin {
 		$region         = $wpadi_settings['wpadi_azure_api_region'];
 		$max_candidates = 100; // If we want to make this a setting at some point.
 
+		// Error out if no API or region
 		if ( '' === $api_key || '' === $region ) {
 			wp_send_json_error( [
 				'error' => __( 'Error: Invalid key or region detected. Please fill out the API key and appropriate region.', 'wpazure-describe-image' ),
 			] );
 		};
 
+		// Set up the request
 		$url  = "https://${region}.api.cognitive.microsoft.com/vision/v1.0/describe?maxCandidates=${max_candidates}";
-		$args = [
-			'headers' => [
+		$body = wp_json_encode( array(
+			'url' => $image,
+		) );
+		$args = array(
+			'headers' => array(
 				'Content-Type'              => 'application/json',
 				'Ocp-Apim-Subscription-Key' => $api_key,
-			],
-			'body'    => '{"url":"' . $image . '"}',
-		];
+			),
+			'body'    => $body,
+		);
 
-		$response = wp_remote_get( $url, $args );
+		// Call the API
+		$response = wp_remote_post( $url, $args );
 
-		$debug = [
-			'region' => $region,
-			'key'    => $api_key,
-			'max'    => $max_candidates,
-			'url'    => $url,
-			'image'  => $image,
-		];
-
-		wp_send_json( [ 'debug' => $debug, 'api' => $response ] );
+		// Return AJAX call
+		wp_send_json( [
+			'threshold' => $wpadi_settings['wpadi_confidence_threshold'],
+			'api'       => $response,
+		] );
 	}
 
 
