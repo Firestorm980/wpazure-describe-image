@@ -1,0 +1,24 @@
+/**
+ * All of the CSS for your admin-specific functionality should be
+ * included in this file.
+ */
+
+.compat-field-generate_alt {
+    display: flex;
+    flex-direction: column;
+}
+.compat-field-generate_alt th {
+    width: 100%;
+    display: block;
+}
+.compat-field-generate_alt td {
+    width: 100%;
+    display: block;
+}
+.js-wpazure-describe-image__results {
+    padding-top: 1em;
+    display: none;
+}
+.js-wpazure-describe-image__results.has-choices {
+    display: block;
+}
