@@ -112,6 +112,21 @@ class Wpazure_Describe_Image_Admin {
 
 		wp_enqueue_script( $this->wpazure_describe_image, plugin_dir_url( __FILE__ ) . 'js/wpazure-describe-image-admin.js', array( 'jquery' ), $this->version, true );
 
+		wp_localize_script(
+			$this->wpazure_describe_image,
+			'WPADIi18n',
+			array(
+				'notices' => array(
+					'error_general'  => __( 'There was an error getting descriptions for the image.', 'wpazure-describe-image' ),
+					'info_threshold' => __( 'No descriptions were generated above the threshold.', 'wpazure-describe-image' ),
+				),
+				'choice' => array(
+					'description' => __( 'Description:', 'wpazure-describe-image' ),
+					'confidence'  => __( 'Description has confidence of:', 'wpazure-describe-image' ),
+				),
+			)
+		);
+
 	}
 
 	/**
