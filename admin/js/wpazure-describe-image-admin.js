@@ -30,14 +30,17 @@
 	 */
 	var
 		$alt          = $( '#attachment_alt' ),
-		$buttonGet    = $( '#jsPluginNameGetDescriptions' ),
-		$buttonSet    = $( '#jsPluginNameSetDescription' ),
-		$buttonCancel = $( '#jsPluginNameCancel' ),
-		$results      = $( '#jsPluginNameResults' ),
-		$choices      = $( '#jsPluginNameChoices' ),
+		$buttonGet    = $( '#jsWPADIGetDescriptions' ),
+		$buttonSet    = $( '#jsWPADISetDescription' ),
+		$buttonCancel = $( '#jsWPADICancel' ),
+		$results      = $( '#jsWPADIResults' ),
+		$error        = $( '#jsWPADIError' ),
+		$errors       = $( '#jsWPADIErrors' ),
+		$errorText    = $( '#jsWPADIErrorText' ),
+		$choices      = $( '#jsWPADIChoices' ),
 		data          = {},
 		threshold     = 0;
-/*
+
 	var getDescriptions = function () {
 		var
 			$button       = $( this ),
@@ -46,58 +49,49 @@
 			dataImageURL  = $button.attr( 'data-image-url' );
 
 		$buttonGet.prop( 'disabled', true );
-
-		$.ajax({
-			contentType: 'application/json',
-			headers: {
-				'Ocp-Apim-Subscription-Key': '80c03dfc4bd64cbbb7b44a2484493742'
-			},
-			data: '{"url": "https://media.wired.com/photos/5926538eaf95806129f4f0b6/master/pass/UnsplashHP.jpg"}',
-			dataType: 'json',
-			method: 'POST',
-			url: 'https://' + region + '.api.cognitive.microsoft.com/vision/v1.0/describe?maxCandidates=' + maxCandidates
-		})
-		.done( getDescriptionsSuccess )
-		.fail( getDescriptionsFail );		
-	};
-*/
-	var getDescriptions = function () {
-		var
-			$button       = $( this ),
-			region        = 'westcentralus',
-			maxCandidates = 5,
-			dataImageURL  = $button.attr( 'data-image-url' );
-
-		$buttonGet.prop( 'disabled', true );
+		$results.removeClass( 'has-choices' );
+		$errors.removeClass( 'has-errors' );
 
 		$.ajax({
 			method: 'POST',
 			data: {
 				action: 'azure_describe_image',
-				image: 'https://media.wired.com/photos/5926538eaf95806129f4f0b6/master/pass/UnsplashHP.jpg'
+				image: dataImageURL
 			},
 			dataType: 'json',
 			url: ajaxurl
 		})
-		.done( getDescriptionsSuccess )
-		.fail( getDescriptionsFail );
+		.done( getDescriptionsSuccess );
 	};
 
 	var getDescriptionsSuccess = function ( response, textStatus, jqXHR ) {
-		if ( 200 !== response.api.response.code ) {
-			// todo: error handling
-		}
-		
-		data = JSON.parse( response.api.body );
-		threshold = parseFloat( response.threshold );
+		var body = null;
 
-		$results.addClass( 'has-choices' );
-		$choices.append( getChoicesHTML() );
-		$buttonSet.prop( 'disabled', false );
+		if ( response.success ) {
+			body = JSON.parse( response.data.api.body );
+		} else {
+			getDescriptionsError( response.data.message );
+		}
+
+		if ( 200 !== response.data.api.response.code ) {
+			getDescriptionsError( body.message );
+		} else {
+			data = body;
+			threshold = parseFloat( response.data.threshold );
+
+			$results.addClass( 'has-choices' );
+			$errors.removeClass( 'has-errors' );
+			$choices.append( getChoicesHTML() );
+			$buttonSet.prop( 'disabled', false );			
+		}
 	};
 
-	var getDescriptionsFail = function ( jqXHR, textStatus, errorThrown ) {
-		
+	var getDescriptionsError = function ( message ) {
+		$results.removeClass( 'has-choices' );
+		$error.addClass( 'error' );
+		$errors.addClass( 'has-errors' );
+		$errorText.text( message );
+		$buttonGet.prop( 'disabled', false );		
 	};
 
 	var getChoicesHTML = function () {
@@ -126,10 +120,14 @@
 
 			HTML = HTML.concat( [
 				'<li class="wpazure-describe-image__choice ' + confidenceClass + '">',
-					'<input id="caption_' + index + '" type="radio" name="generated_caption" value="' + text + '">',
-					'<label for="caption_' + index + '">',
+					'<input id="caption_' + index + '" type="radio" name="generated_caption" value="' + text + '" class="screen-reader-text">',
+					'<label for="caption_' + index + '" aria-label="Description: ' + text + '. Description is ' + (confidence * 100).toFixed(2) + '% confidence.">',
 					'<span class="caption__text">&ldquo;' + text + '&rdquo;</span>',
-					'<span class="caption__confidence"><span class="caption__confidence__bar" style="width: ' + (confidence * 100).toFixed(2) + '%;">' + (confidence * 100).toFixed(2) + '%</span></span>',
+					'<span class="caption__confidence">',
+					'<span class="caption__confidence__bar" style="width: ' + (confidence * 100).toFixed(2) + '%;">',
+					(confidence * 100).toFixed(2) + '%',
+					'</span>',
+					'</span>',
 					'</label>',
 				'</li>'
 			] );

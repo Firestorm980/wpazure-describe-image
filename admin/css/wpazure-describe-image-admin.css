@@ -15,10 +15,12 @@
     width: 100%;
     display: block;
 }
+.js-wpazure-describe-image__error,
 .js-wpazure-describe-image__results {
     padding-top: 1em;
     display: none;
 }
+.js-wpazure-describe-image__error.has-errors,
 .js-wpazure-describe-image__results.has-choices {
     display: block;
 }
@@ -28,7 +30,6 @@
     background-color: #fff;
 }
 .wpazure-describe-image__choice {
-    padding: 0.5rem 1rem;
     margin-bottom: 0;
     display: flex;
     align-items: center;
@@ -40,9 +41,40 @@
     display: inline-block;
     vertical-align: middle;
     flex-grow: 1;
+    padding-top: 0.5rem;
+    padding-right: 1rem;
+    padding-bottom: 0.5rem;
+    padding-left: 4rem;
+    position: relative;
+}
+.wpazure-describe-image__choice label:before {
+    content: "\f147";
+    color: #f1f1f1;
+    display: block;
+    height: 2rem;
+    width: 2rem;
+    position: absolute;
+    top: 50%;
+    left: 1rem;
+    transform: translateY(-50%);
+    font-size: 2rem;
+    font-family: 'dashicons';
+    line-height: 1;
+    font-weight: normal;
+}
+.wpazure-describe-image__choice label:hover,
+.wpazure-describe-image__choice input:focus + label {
+    background-color: #f1f1f1;
+}
+.wpazure-describe-image__choice label:hover:before,
+.wpazure-describe-image__choice input:focus + label:before {
+    color: #82878c;
 }
 .wpazure-describe-image__choice input {
     margin-right: 1rem;
+}
+.wpazure-describe-image__choice input:checked + label:before  {
+    color: #46b450;
 }
 .wpazure-describe-image__choice .caption__text {
     display: block;
@@ -62,14 +94,13 @@
     font-weight: bold;
     font-size: 0.875em;
     padding: 0.25em 0.5em;
-    color: #fff;
+    color: #000;
 }
 .wpazure-describe-image__choice--high .caption__confidence__bar {
     background-color: #46b450;
 }
 .wpazure-describe-image__choice--med .caption__confidence__bar {
     background-color: #f1c40f;
-    color: #000;
 }
 .wpazure-describe-image__choice--low .caption__confidence__bar {
     background-color: #f8354a;

@@ -114,14 +114,28 @@ class Wpazure_Describe_Image_Admin {
 
 	}
 
+	/**
+	 * Filter to add the extra fields to the attachment edit screen.
+	 *
+	 * @param Array $form_fields The array of form fields to edit.
+	 * @param WP_Post $post The post currently being edited.
+	 * @return Array The updated form fields.
+	 */
 	public function wpadi_admin_attachment_fields_to_edit( $form_fields, $post ) {
+
+		// If it isn't an image, don't bother.
+		if ( ! wp_attachment_is_image( $post->ID ) ) {
+			return;
+		}
 
 		ob_start();
 
-		include( 'partials/wpazure-describe-image-admin-display.php' );
+		// Has all of our HTML in one spot
+		include 'partials/wpazure-describe-image-admin-display.php';
 
 		$html = ob_get_clean();
 
+		// Add the new form fields
 		$form_fields['generate_alt'] = array(
 			'label' => __( 'Generate Alternate Text', 'wpazure-describe-image' ),
 			'input' => 'html',
@@ -132,6 +146,11 @@ class Wpazure_Describe_Image_Admin {
 		return $form_fields;
 	}
 
+	/**
+	 * Plugin AJAX function that will get our image descriptions from the Azure API.
+	 *
+	 * @return Object
+	 */
 	public function wpadi_ajax_azure_describe_image() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			die( '-1' );
@@ -143,7 +162,7 @@ class Wpazure_Describe_Image_Admin {
 		// Error if no settings.
 		if ( ! $wpadi_settings ) {
 			wp_send_json_error( [
-				'error' => __( 'Error: Options have not been set for the plugin.', 'wpazure-describe-image' ),
+				'message' => __( 'Error: Options have not been set for the plugin.', 'wpazure-describe-image' ),
 			] );
 		}
 
@@ -154,7 +173,7 @@ class Wpazure_Describe_Image_Admin {
 		// Error out if no API or region
 		if ( '' === $api_key || '' === $region ) {
 			wp_send_json_error( [
-				'error' => __( 'Error: Invalid key or region detected. Please fill out the API key and appropriate region.', 'wpazure-describe-image' ),
+				'message' => __( 'Error: Invalid key or region detected. Please fill out the API key and appropriate region.', 'wpazure-describe-image' ),
 			] );
 		};
 
@@ -175,7 +194,7 @@ class Wpazure_Describe_Image_Admin {
 		$response = wp_remote_post( $url, $args );
 
 		// Return AJAX call
-		wp_send_json( [
+		wp_send_json_success( [
 			'threshold' => $wpadi_settings['wpadi_confidence_threshold'],
 			'api'       => $response,
 		] );
@@ -247,7 +266,11 @@ class Wpazure_Describe_Image_Admin {
 			id='wpadi_azure_api_key'
 			type='password'
 			name='wpadi_settings[wpadi_azure_api_key]'
-			value='<?php echo $options['wpadi_azure_api_key']; ?>'>
+			value='<?php echo $options['wpadi_azure_api_key']; ?>'
+			aria-describedby="wpadi_azure_api_key_description">
+		<p class="wpadi-description description" id="wpadi_azure_api_key_description">
+			<?php esc_html_e( 'Enter your API key that you recieved from Microsoft Azure.', 'wpazure-describe-image' ); ?>
+		</p>
 		<?php
 	}
 
@@ -255,7 +278,10 @@ class Wpazure_Describe_Image_Admin {
 
 		$options = get_option( 'wpadi_settings' );
 		?>
-		<select id='wpadi_azure_api_region' name='wpadi_settings[wpadi_azure_api_region]'>
+		<select
+			id='wpadi_azure_api_region'
+			name='wpadi_settings[wpadi_azure_api_region]'
+			aria-describedby="wpadi_azure_api_region_description">
 			<option value=""><?php esc_html_e( 'Select a region', 'wpazure-describe-image' ); ?></option>
 			<option value="westus" <?php selected( $options['wpadi_azure_api_region'], 'westus' ); ?>>West US</option>
 			<option value="westus2" <?php selected( $options['wpadi_azure_api_region'], 'westus2' ); ?>>West US 2</option>
@@ -270,6 +296,9 @@ class Wpazure_Describe_Image_Admin {
 			<option value="australiaeast" <?php selected( $options['wpadi_azure_api_region'], 'australiaeast' ); ?>>Australia East</option>
 			<option value="brazilsouth" <?php selected( $options['wpadi_azure_api_region'], 'brazilsouth' ); ?>>Brazil South</option>
 		</select>
+		<p class="wpadi-description description" id="wpadi_azure_api_region_description">
+			<?php esc_html_e( 'Select the region you were assigned to by Microsoft Azure.', 'wpazure-describe-image' ); ?>
+		</p>
 		<?php
 
 	}
@@ -285,7 +314,11 @@ class Wpazure_Describe_Image_Admin {
 			max='1'
 			step='0.01'
 			name='wpadi_settings[wpadi_confidence_threshold]'
-			value='<?php echo $options['wpadi_confidence_threshold']; ?>'>
+			value='<?php echo $options['wpadi_confidence_threshold']; ?>'
+			aria-describedby="wpadi_confidence_threshold_description">
+		<p class="wpadi-description description" id="wpadi_confidence_threshold_description">
+			<?php esc_html_e( 'Enter a number between 0 and 1 to only show suggestions for alternative text that meet a certain confidence level and above. 1 being the most confident that the description of the image is appropriate. Defaults to 0.8.', 'wpazure-describe-image' ); ?>
+		</p>
 		<?php
 
 	}
