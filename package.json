@@ -1,0 +1,26 @@
+{
+  "name": "wpazure-describe-image",
+  "version": "1.0.0",
+  "description": "Uses the Microsoft Azure Cognitive Services to suggest alternative text for your images uploaded to the WordPress media library.",
+  "main": "index.js",
+  "scripts": {
+    "pot": "wp-pot --src '**/*.php' --dest-file 'languages/wpazure-describe-image.pot' --package 'WP Azure Describe Image' --domain 'wpazure-describe-image'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Firestorm980/wpazure-describe-image.git"
+  },
+  "keywords": [
+    "Azure",
+    "WordPress",
+    "Cognitive",
+    "Microsoft",
+    "Describe",
+    "Image"
+  ],
+  "author": "Jon Christensen",
+  "bugs": {
+    "url": "https://github.com/Firestorm980/wpazure-describe-image/issues"
+  },
+  "homepage": "https://github.com/Firestorm980/wpazure-describe-image#readme"
+}
