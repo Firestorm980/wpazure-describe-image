@@ -12,6 +12,7 @@
 ?>
 
 <!-- This file should primarily consist of HTML with a little bit of PHP. -->
+<p class="help"><?php _e( 'Generate alternative text for this attachment based on Azure Computer Vision API.', 'wpazure-describe-image' ); ?></p>
 <div class="js-wpazure-describe-image__field" id="jsWPADIField">
 	<button
 		type="button"

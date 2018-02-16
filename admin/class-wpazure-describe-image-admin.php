@@ -154,7 +154,7 @@ class Wpazure_Describe_Image_Admin {
 		$form_fields['generate_alt'] = array(
 			'label' => __( 'Generate Alternate Text', 'wpazure-describe-image' ),
 			'input' => 'html',
-			'helps' => __( 'Generate alternative text for this attachment based on Azure Computer Vision API.', 'wpazure-describe-image' ),
+			'helps' => null,
 			'html'  => $html,
 		);
 
